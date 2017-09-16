@@ -17,6 +17,7 @@ package com.example.android.shushme;
 */
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -146,16 +147,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onResume() {
         super.onResume();
-        CheckBox permissions = (CheckBox) findViewById(R.id.cbPermissions);
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            permissions.setChecked(true);
+        CheckBox locationPermissions = (CheckBox) findViewById(R.id.cbPermissions);
+        if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locationPermissions.setChecked(false);
         } else {
-            permissions.setChecked(false);
+            locationPermissions.setChecked(true);
+            locationPermissions.setEnabled(false);
+        }
+
+        // Initialize ringer permissions checkbox
+        CheckBox ringerPermissions = (CheckBox) findViewById(R.id.ringer_permissions_checkbox);
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Check if the API supports such permission change and check if permission is granted
+        if (android.os.Build.VERSION.SDK_INT >= 24 && !nm.isNotificationPolicyAccessGranted()) {
+            ringerPermissions.setChecked(false);
+        } else {
+            ringerPermissions.setChecked(true);
+            ringerPermissions.setEnabled(false);
+
         }
     }
 
     public void onLocationPermissionsClicked(View view) {
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 111);
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                111);
     }
 
     public void onAddPlaceBUttonClicked(View view) {
@@ -195,6 +212,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             getContentResolver().insert(PlaceContract.PlaceEntry.CONTENT_URI, contentValues);
         }
     }
+
+    public void onRingerPermissionsClicked(View view) {
+        Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+        startActivity(intent);
+    }
+    
 
     // TODO (5) Override onConnected, onConnectionSuspended and onConnectionFailed for GoogleApiClient
     // TODO (7) Override onResume and inside it initialize the location permissions checkbox
