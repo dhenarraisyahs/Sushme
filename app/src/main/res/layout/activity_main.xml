@@ -70,7 +70,8 @@
                 android:id="@+id/cbPermissions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="onLocationPermissionsClicked" />
+                android:onClick="onLocationPermissionsClicked"
+                android:text="Location Permission" />
         </LinearLayout>
 
         <Button
